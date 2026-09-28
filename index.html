@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Frise — méthode des J</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FAF7F5;
+    --bg-soft: #F3EEF8;
+    --ink: #362F45;
+    --ink-soft: #6E6580;
+    --card: #FFFFFF;
+    --line: #EDE7F5;
+    --lavande: #D9C9F0;
+    --lavande-deep: #B49CE0;
+    --menthe: #BFEBD6;
+    --menthe-deep: #7FCFA6;
+    --peche: #FBD8B6;
+    --peche-deep: #F0AE6E;
+    --ciel: #C7E3F5;
+    --ciel-deep: #8EC3E8;
+    --rose: #F6C9DA;
+    --rose-deep: #E894B4;
+    --beurre: #F8EBB0;
+    --beurre-deep: #E0C862;
+    --corail: #FFD0C2;
+    --corail-deep: #F4977B;
+    --sauge: #D3E5C6;
+    --sauge-deep: #98BE7E;
+    --lilas: #E3CCEE;
+    --lilas-deep: #C297D9;
+    --miel: #F6DDA0;
+    --miel-deep: #DDAE3F;
+    --glacier: #C9E8E8;
+    --glacier-deep: #7FC4C4;
+    --framboise: #F6BFCF;
+    --framboise-deep: #E06B90;
+    --avenir: #E7E3EF;
+    --avenir-text: #9D93B0;
+    --du: #FFB7A6;
+    --du-text: #8C3A24;
+    --fait: #9FE0BE;
+    --fait-text: #1F6E48;
+    --shadow: 0 8px 24px -12px rgba(90, 70, 130, 0.25);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1200px 600px at 10% -10%, #F6EEFB 0%, var(--bg) 45%);
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    min-height:100vh;
+  }
+
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width: 300px;
+    flex-shrink:0;
+    background: var(--card);
+    border-right: 1px solid var(--line);
+    padding: 28px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:-0.01em;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .sync-btn{
+    margin-left:auto;
+    background: var(--bg-soft);
+    border:none;
+    width:30px;height:30px;
+    border-radius:9px;
+    font-size:15px;
+    cursor:pointer;
+    color: var(--ink-soft);
+    flex-shrink:0;
+  }
+  .sync-btn:hover{ background: var(--line); color: var(--ink); }
+  .sync-status{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    display:flex; align-items:center; gap:6px;
+    color: var(--ink-soft);
+    margin-top:-8px;
+  }
+  .sync-status i{
+    width:8px;height:8px;border-radius:50%;
+    background: #C9C2D6;
+    flex-shrink:0;
+  }
+  .sync-status.ok i{ background: var(--fait-text); }
+  .sync-status.error i{ background: var(--du-text); }
+  .sync-status.syncing i{ background: var(--beurre-deep); }
+  .brand-dot{
+    width:14px;height:14px;border-radius:50%;
+    background: linear-gradient(135deg, var(--lavande), var(--rose));
+    flex-shrink:0;
+  }
+  .brand small{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:400;
+    color:var(--ink-soft);
+    letter-spacing:0.02em;
+  }
+
+  .subject-list{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    overflow-y:auto;
+    flex:1;
+    padding-right:2px;
+  }
+  .annee-toggle{
+    display:flex;
+    gap:8px;
+    background: var(--bg-soft);
+    padding:4px;
+    border-radius:12px;
+  }
+  .annee-toggle button{
+    flex:1;
+    border:none;
+    background:transparent;
+    color: var(--ink-soft);
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:15px;
+    padding:8px 6px;
+    border-radius:9px;
+    cursor:pointer;
+  }
+  .annee-toggle button.active{
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 3px 10px -4px rgba(90,70,130,0.3);
+  }
+  .subject-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:11px 12px;
+    border-radius:12px;
+    cursor:pointer;
+    transition: background .15s ease, transform .1s ease;
+    border: 1px solid transparent;
+    position:relative;
+  }
+  .subject-item:hover{ background: var(--bg-soft); }
+  .subject-item.active{
+    background: var(--bg-soft);
+    border-color: var(--line);
+  }
+  .subject-swatch{
+    width:10px;height:34px;border-radius:6px;flex-shrink:0;
+  }
+  .subject-info{ flex:1; min-width:0; }
+  .subject-name{
+    font-weight:800;
+    font-size:14.5px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .subject-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: var(--ink-soft);
+  }
+  .subject-badge{
+    min-width:20px;
+    height:20px;
+    border-radius:50%;
+    background: var(--du);
+    color: var(--du-text);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+    padding:0 5px;
+  }
+  .subject-del{
+    opacity:0;
+    background:none;border:none;cursor:pointer;
+    color:var(--ink-soft);
+    font-size:16px;
+    padding:2px 4px;
+    border-radius:6px;
+  }
+  .subject-item:hover .subject-del{ opacity:1; }
+  .subject-del:hover{ background:#fff; color:#C4467A; }
+
+  .semestre-header{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color: var(--ink-soft);
+    padding: 10px 8px 4px 8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .semestre-header:first-child{ padding-top:0; }
+  .semestre-header::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background: var(--line);
+  }
+  .semestre-pill{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:10px;
+    color: var(--ink-soft);
+    background: var(--bg-soft);
+    margin-left:8px;
+  }
+
+  .semestre-toggle{
+    display:flex;
+    gap:8px;
+    margin-bottom:4px;
+  }
+  .semestre-toggle button{
+    flex:1;
+    border:1px solid var(--line);
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    font-family:'Nunito', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    padding:9px 6px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .semestre-toggle button.active{
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  .btn{
+    border:none;
+    border-radius:12px;
+    padding:11px 14px;
+    font-family:'Nunito', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-primary{
+    background: linear-gradient(135deg, var(--lavande), var(--lavande-deep));
+    color: #382B5C;
+    box-shadow: var(--shadow);
+  }
+  .btn-ghost{
+    background: var(--bg-soft);
+    color: var(--ink);
+  }
+  .btn-ghost:hover{ background: var(--line); }
+  .sidebar-actions{
+    display:flex; flex-direction:column; gap:8px;
+    padding-top:10px;
+    border-top:1px solid var(--line);
+  }
+  .btn-row{ display:flex; gap:8px; }
+  .btn-row .btn{ flex:1; font-size:12.5px; padding:9px 8px; }
+
+  /* ---------- MAIN ---------- */
+  .main{
+    flex:1;
+    padding: 34px 44px;
+    max-width:1100px;
+  }
+  .main-header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    margin-bottom: 26px; gap:20px; flex-wrap:wrap;
+  }
+  .main-title{
+    font-family:'Fraunces', serif;
+    font-size:34px;
+    font-weight:700;
+    display:flex; align-items:center; gap:14px;
+  }
+  .main-swatch{
+    width:16px;height:16px;border-radius:5px;
+  }
+  .main-sub{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin-top:4px;
+  }
+  .legend{
+    display:flex; gap:14px; flex-wrap:wrap;
+    font-size:12.5px; color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .legend span{ display:flex; align-items:center; gap:6px; }
+  .legend i{ width:10px;height:10px;border-radius:50%; display:inline-block; }
+
+  .empty-state{
+    margin-top:80px;
+    text-align:center;
+    color: var(--ink-soft);
+  }
+  .empty-state .big{
+    font-family:'Fraunces', serif;
+    font-size:26px;
+    color:var(--ink);
+    margin-bottom:10px;
+  }
+
+  .course-card{
+    background: var(--card);
+    border-radius:18px;
+    padding:20px 22px;
+    margin-bottom:16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+  }
+  .course-top{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+    margin-bottom:16px;
+  }
+  .course-name{ font-weight:800; font-size:17px; }
+  .course-date{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color: var(--ink-soft);
+    margin-top:2px;
+  }
+  .course-progress-wrap{
+    display:flex; align-items:center; gap:10px;
+  }
+  .progress-pill{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:20px;
+    background: var(--fait);
+    color: var(--fait-text);
+  }
+  .course-del{
+    background:none;border:none;cursor:pointer;color:var(--ink-soft);
+    font-size:16px; border-radius:8px; padding:2px 6px;
+  }
+  .course-del:hover{ background:var(--bg-soft); color:#C4467A; }
+
+  /* La frise */
+  .frise{
+    display:flex;
+    align-items:center;
+    position:relative;
+    padding: 6px 4px 24px 4px;
+  }
+  .frise-track{
+    position:absolute;
+    left: 24px; right:24px; top: 24px;
+    height:3px;
+    background: var(--line);
+    border-radius:2px;
+    z-index:0;
+  }
+  .frise-step{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    position:relative;
+    z-index:1;
+    cursor:pointer;
+    user-select:none;
+  }
+  .frise-dot{
+    width:34px;height:34px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:12.5px;
+    border: 3px solid var(--card);
+    box-shadow: 0 2px 6px rgba(60,40,90,0.12);
+    transition: transform .12s ease;
+    background: var(--avenir);
+    color: var(--avenir-text);
+  }
+  .frise-step:hover .frise-dot{ transform: scale(1.12); }
+  .frise-dot.due{ background: var(--du); color: var(--du-text); }
+  .frise-dot.done{ background: var(--fait); color: var(--fait-text); }
+  .frise-label{
+    margin-top:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: var(--ink-soft);
+    text-align:center;
+  }
+  .frise-date{
+    font-size:9.5px;
+    color:#B7ADC6;
+    margin-top:1px;
+  }
+
+  /* Modal */
+  .overlay{
+    position:fixed; inset:0;
+    background: rgba(54, 47, 69, 0.35);
+    display:flex; align-items:center; justify-content:center;
+    z-index:50;
+  }
+  .modal{
+    background:var(--card);
+    border-radius:20px;
+    padding:28px;
+    width:380px;
+    max-width:90vw;
+    box-shadow: 0 24px 60px -20px rgba(50,30,80,0.4);
+  }
+  .modal h3{
+    font-family:'Fraunces', serif;
+    margin:0 0 18px 0;
+    font-size:20px;
+  }
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block; font-size:12.5px; font-weight:700; margin-bottom:6px; color:var(--ink-soft);
+  }
+  .field input[type=text], .field input[type=date]{
+    width:100%;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background: var(--bg-soft);
+    font-family:'Nunito', sans-serif;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .field input:focus{ outline:2px solid var(--lavande-deep); outline-offset:1px; }
+  .swatches{ display:flex; gap:8px; flex-wrap:wrap; }
+  .swatch{
+    width:30px;height:30px;border-radius:9px;
+    cursor:pointer; border:2px solid transparent;
+  }
+  .swatch.selected{ border-color: var(--ink); }
+  .modal-actions{ display:flex; gap:10px; margin-top:20px; }
+  .modal-actions .btn{ flex:1; }
+
+  #importInput{ display:none; }
+
+  @media (max-width: 760px){
+    .app{ flex-direction:column; }
+    .sidebar{ width:100%; border-right:none; border-bottom:1px solid var(--line); }
+    .main{ padding: 24px 18px; }
+    .frise-label{ font-size:9.5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-dot"></span>
+      <div>La Frise
+        <small>méthode des J</small>
+      </div>
+      <button class="sync-btn" id="syncBtn" onclick="openSyncModal()" title="Synchronisation">⚙︎</button>
+    </div>
+    <div class="sync-status" id="syncStatus"></div>
+
+    <div class="annee-toggle" id="anneeToggle">
+      <button type="button" data-annee="1" onclick="selectAnnee(1)">Master 1</button>
+      <button type="button" data-annee="2" onclick="selectAnnee(2)">Master 2</button>
+    </div>
+
+    <div class="subject-list" id="subjectList"></div>
+
+    <button class="btn btn-primary" onclick="openSubjectModal()">+ Nouvelle matière</button>
+
+    <div class="sidebar-actions">
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="exportData()">⬇ Exporter</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('importInput').click()">⬆ Importer</button>
+      </div>
+      <input type="file" id="importInput" accept="application/json" onchange="importData(event)">
+    </div>
+  </aside>
+
+  <main class="main" id="main"></main>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+/* ---------------- DONNÉES ---------------- */
+const INTERVALS = [
+  {off:0, label:'J'},
+  {off:1, label:'J+1'},
+  {off:3, label:'J+3'},
+  {off:7, label:'J+7'},
+  {off:15, label:'J+15'},
+  {off:30, label:'J+30'},
+  {off:50, label:'J+50'},
+];
+
+const PALETTE_S1 = ['lavande','menthe','peche','ciel','rose','beurre'];
+const PALETTE_S2 = ['corail','sauge','lilas','miel','glacier','framboise'];
+function paletteFor(semestre){ return semestre===2 ? PALETTE_S2 : PALETTE_S1; }
+
+const STORAGE_KEY = 'methode-des-j-data';
+
+function defaultState(){
+  const s = {
+    subjects: [
+      {
+        id: uid(), name: 'Exemple : SVT', color: 'menthe', semestre: 1, annee: 1,
+        courses: [
+          { id: uid(), name: 'Le cycle cellulaire', date: isoDaysAgo(2), done: {0:true, 1:true} }
+        ]
+      }
+    ],
+    selectedId: null,
+    selectedAnnee: 1
+  };
+  s.selectedId = s.subjects[0].id;
+  return s;
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && parsed.subjects) return parsed;
+    }
+  }catch(e){ /* localStorage indisponible (ex: aperçu Claude) : on continue sans */ }
+  return defaultState();
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){ /* localStorage indisponible : rien à faire, utiliser Exporter/Importer */ }
+}
+
+let state = loadState();
+if(!state.selectedAnnee) state.selectedAnnee = 1;
+
+/* ---------------- SYNCHRONISATION (JSONBin.io) ---------------- */
+const SYNC_KEY_STORAGE = 'methode-des-j-sync-key';
+const SYNC_BIN_STORAGE = 'methode-des-j-sync-bin';
+let syncApiKey = localStorage.getItem(SYNC_KEY_STORAGE) || '';
+let syncBinId = localStorage.getItem(SYNC_BIN_STORAGE) || '';
+let syncTimer = null;
+let suppressPush = false;
+
+function isSyncConfigured(){ return !!(syncApiKey && syncBinId); }
+
+function setSyncStatus(mode, text){
+  const el = document.getElementById('syncStatus');
+  if(!el) return;
+  el.className = 'sync-status ' + mode;
+  el.innerHTML = `<i></i> ${text}`;
+}
+
+function refreshSyncStatusIdle(){
+  if(!isSyncConfigured()){
+    setSyncStatus('', 'Synchro non configurée');
+  } else {
+    setSyncStatus('ok', 'Synchronisé');
+  }
+}
+
+async function syncPull(showStatus){
+  if(!isSyncConfigured()) return;
+  if(showStatus) setSyncStatus('syncing', 'Récupération...');
+  try{
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${syncBinId}/latest`, {
+      headers: { 'X-Master-Key': syncApiKey }
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if(data.record && data.record.subjects){
+      suppressPush = true;
+      state = data.record;
+      if(!state.selectedAnnee) state.selectedAnnee = 1;
+      if(!state.subjects.find(s=>s.id===state.selectedId)){
+        const firstInYear = state.subjects.find(s=>(s.annee||1)===state.selectedAnnee);
+        state.selectedId = firstInYear ? firstInYear.id : (state.subjects[0] ? state.subjects[0].id : null);
+      }
+      render();
+      suppressPush = false;
+    }
+    refreshSyncStatusIdle();
+  }catch(e){
+    setSyncStatus('error', 'Hors ligne (dernière copie locale)');
+  }
+}
+
+function scheduleSyncPush(){
+  if(!isSyncConfigured() || suppressPush) return;
+  clearTimeout(syncTimer);
+  setSyncStatus('syncing', 'Synchronisation...');
+  syncTimer = setTimeout(async ()=>{
+    try{
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${syncBinId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': syncApiKey
+        },
+        body: JSON.stringify(state)
+      });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      setSyncStatus('ok', 'Synchronisé');
+    }catch(e){
+      setSyncStatus('error', 'Échec de synchro (sauvegardé en local)');
+    }
+  }, 900);
+}
+
+async function createSyncBin(){
+  const key = document.getElementById('syncKeyInput').value.trim();
+  if(!key){ alert('Colle d\'abord ta clé API JSONBin.'); return; }
+  try{
+    const res = await fetch('https://api.jsonbin.io/v3/b', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': key,
+        'X-Bin-Name': 'methode-des-j'
+      },
+      body: JSON.stringify(state)
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    document.getElementById('syncBinInput').value = data.metadata.id;
+  }catch(e){
+    alert("Impossible de créer l'espace de synchro : vérifie ta clé API. (" + e.message + ")");
+  }
+}
+
+function saveSyncConfig(){
+  syncApiKey = document.getElementById('syncKeyInput').value.trim();
+  syncBinId = document.getElementById('syncBinInput').value.trim();
+  localStorage.setItem(SYNC_KEY_STORAGE, syncApiKey);
+  localStorage.setItem(SYNC_BIN_STORAGE, syncBinId);
+  closeModal();
+  if(isSyncConfigured()){
+    syncPull(true);
+  } else {
+    refreshSyncStatusIdle();
+  }
+}
+
+function clearSyncConfig(){
+  if(!confirm('Désactiver la synchronisation sur cet appareil ?')) return;
+  syncApiKey = ''; syncBinId = '';
+  localStorage.removeItem(SYNC_KEY_STORAGE);
+  localStorage.removeItem(SYNC_BIN_STORAGE);
+  closeModal();
+  refreshSyncStatusIdle();
+}
+
+function openSyncModal(){
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>Synchronisation entre appareils</h3>
+        <div class="field">
+          <label>Clé API JSONBin (gratuite sur jsonbin.io)</label>
+          <input type="text" id="syncKeyInput" placeholder="$2a$10$..." value="${escapeHtml(syncApiKey)}">
+        </div>
+        <div class="field">
+          <label>Identifiant de l'espace partagé</label>
+          <input type="text" id="syncBinInput" placeholder="Colle l'ID ici, ou crée-en un nouveau" value="${escapeHtml(syncBinId)}">
+          <div style="margin-top:8px;">
+            <button class="btn btn-ghost" style="width:100%; font-size:12.5px;" onclick="createSyncBin()">Créer un nouvel espace (1ère fois seulement)</button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="clearSyncConfig()">Désactiver</button>
+          <button class="btn btn-primary" onclick="saveSyncConfig()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function isoToday(){ return new Date().toISOString().slice(0,10); }
+function isoDaysAgo(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+function addDays(iso, n){ const d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return d; }
+function fmtDate(d){ return d.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'}); }
+
+function computeSchedule(course){
+  const today = new Date(); today.setHours(0,0,0,0);
+  let anchor = new Date(course.date+'T00:00:00');
+  const results = [];
+  INTERVALS.forEach((iv, idx)=>{
+    let predicted;
+    if(idx === 0){
+      predicted = new Date(course.date+'T00:00:00');
+    } else {
+      const delta = iv.off - INTERVALS[idx-1].off;
+      predicted = new Date(anchor);
+      predicted.setDate(predicted.getDate() + delta);
+    }
+    const doneVal = course.done ? course.done[iv.off] : null;
+    const isDone = !!doneVal;
+    const actualDate = (typeof doneVal === 'string') ? new Date(doneVal+'T00:00:00') : null;
+
+    const cmp = new Date(predicted); cmp.setHours(0,0,0,0);
+    let status = 'avenir';
+    if(isDone) status = 'done';
+    else if(cmp <= today) status = 'due';
+
+    results.push({ off: iv.off, label: iv.label, predicted, actualDate, isDone, status });
+    anchor = actualDate || predicted;
+  });
+  return results;
+}
+
+function statusFor(course, off){
+  const entry = computeSchedule(course).find(e=>e.off===off);
+  return entry ? entry.status : 'avenir';
+}
+
+function subjectDueCount(subject){
+  let n = 0;
+  subject.courses.forEach(c=>{
+    computeSchedule(c).forEach(e=>{ if(e.status==='due') n++; });
+  });
+  return n;
+}
+
+/* ---------------- RENDU ---------------- */
+function render(){
+  renderSidebar();
+  renderMain();
+  saveState();
+  if(!suppressPush) scheduleSyncPush();
+}
+
+function renderSidebar(){
+  document.querySelectorAll('#anneeToggle button').forEach(b=>{
+    b.classList.toggle('active', Number(b.dataset.annee)===state.selectedAnnee);
+  });
+
+  const list = document.getElementById('subjectList');
+  list.innerHTML = '';
+
+  const inYear = state.subjects.filter(s=>(s.annee||1)===state.selectedAnnee);
+
+  [1,2].forEach(sem=>{
+    const subjects = inYear.filter(s=>(s.semestre||1)===sem);
+    if(subjects.length === 0) return;
+
+    const header = document.createElement('div');
+    header.className = 'semestre-header';
+    header.innerHTML = `Semestre ${sem}`;
+    list.appendChild(header);
+
+    subjects.forEach(s=>{
+      const due = subjectDueCount(s);
+      const el = document.createElement('div');
+      el.className = 'subject-item' + (s.id===state.selectedId ? ' active':'');
+      el.onclick = ()=>{ state.selectedId = s.id; render(); };
+      el.innerHTML = `
+        <div class="subject-swatch" style="background:var(--${s.color}-deep)"></div>
+        <div class="subject-info">
+          <div class="subject-name">${escapeHtml(s.name)}</div>
+          <div class="subject-meta">${s.courses.length} cours</div>
+        </div>
+        ${due>0 ? `<div class="subject-badge">${due}</div>` : ''}
+        <button class="subject-del" title="Supprimer la matière" onclick="event.stopPropagation(); deleteSubject('${s.id}')">✕</button>
+      `;
+      list.appendChild(el);
+    });
+  });
+
+  if(inYear.length === 0){
+    const empty = document.createElement('div');
+    empty.style.cssText = 'color:var(--ink-soft); font-size:13px; padding:10px 8px;';
+    empty.textContent = `Aucune matière en Master ${state.selectedAnnee} pour l'instant.`;
+    list.appendChild(empty);
+  }
+}
+
+function selectAnnee(annee){
+  state.selectedAnnee = annee;
+  const firstInYear = state.subjects.find(s=>(s.annee||1)===annee);
+  state.selectedId = firstInYear ? firstInYear.id : null;
+  render();
+}
+
+function renderMain(){
+  const main = document.getElementById('main');
+  const subject = state.subjects.find(s=>s.id===state.selectedId);
+
+  if(!subject){
+    main.innerHTML = `<div class="empty-state">
+      <div class="big">Aucune matière pour le moment</div>
+      <div>Crée ta première matière pour commencer à suivre tes révisions.</div>
+    </div>`;
+    return;
+  }
+
+  let coursesHtml = '';
+  if(subject.courses.length === 0){
+    coursesHtml = `<div class="empty-state">
+      <div class="big">Pas encore de cours dans ${escapeHtml(subject.name)}</div>
+      <div>Ajoute un cours pour générer automatiquement sa frise J, J+1, J+3, J+7, J+15, J+30.</div>
+    </div>`;
+  } else {
+    subject.courses.forEach(c=>{
+      const total = INTERVALS.length;
+      const schedule = computeSchedule(c);
+      const doneCount = schedule.filter(e=>e.status==='done').length;
+      const dateObj = new Date(c.date+'T00:00:00');
+      let steps = '';
+      schedule.forEach(e=>{
+        let shownDate = fmtDate(e.predicted);
+        let dateTitle = 'Date prévue';
+        if(e.status==='done'){
+          if(e.actualDate){
+            shownDate = fmtDate(e.actualDate);
+            dateTitle = 'Révisé le';
+          } else {
+            dateTitle = 'Révisé (date exacte inconnue)';
+          }
+        }
+        steps += `
+          <div class="frise-step" onclick="openDoneDateModal('${subject.id}','${c.id}',${e.off})" title="${e.status==='done' ? 'Cliquer pour modifier ou annuler' : 'Choisir la date de révision'}">
+            <div class="frise-dot ${e.status}">${e.status==='done' ? '✓' : ''}</div>
+            <div class="frise-label">${e.label}</div>
+            <div class="frise-date" title="${dateTitle}">${shownDate}</div>
+          </div>`;
+      });
+      coursesHtml += `
+        <div class="course-card">
+          <div class="course-top">
+            <div>
+              <div class="course-name">${escapeHtml(c.name)}</div>
+              <div class="course-date">Ajouté le ${fmtDate(dateObj)}</div>
+            </div>
+            <div class="course-progress-wrap">
+              <div class="progress-pill">${doneCount}/${total} révisions</div>
+              <button class="course-del" title="Supprimer le cours" onclick="deleteCourse('${subject.id}','${c.id}')">✕</button>
+            </div>
+          </div>
+          <div class="frise">
+            <div class="frise-track"></div>
+            ${steps}
+          </div>
+        </div>`;
+    });
+  }
+
+  main.innerHTML = `
+    <div class="main-header">
+      <div>
+        <div class="main-title"><span class="main-swatch" style="background:var(--${subject.color}-deep)"></span>${escapeHtml(subject.name)}<span class="semestre-pill">Master ${subject.annee||1} · Semestre ${subject.semestre||1}</span></div>
+        <div class="main-sub">Clique sur un point de la frise pour marquer une révision comme faite.</div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--avenir)"></i>à venir</span>
+        <span><i style="background:var(--du)"></i>à réviser</span>
+        <span><i style="background:var(--fait)"></i>fait</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="margin-bottom:20px" onclick="openCourseModal('${subject.id}')">+ Ajouter un cours</button>
+    ${coursesHtml}
+  `;
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* ---------------- ACTIONS ---------------- */
+function openDoneDateModal(subjectId, courseId, off){
+  const s = state.subjects.find(s=>s.id===subjectId);
+  const c = s.courses.find(c=>c.id===courseId);
+  const iv = INTERVALS.find(i=>i.off===off);
+  const currentVal = c.done ? c.done[off] : null;
+  const prefill = (typeof currentVal === 'string') ? currentVal : isoToday();
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>${escapeHtml(c.name)} — ${iv.label}</h3>
+        <div class="field">
+          <label>À quelle date as-tu révisé ce point ?</label>
+          <input type="date" id="doneDateInput" value="${prefill}">
+        </div>
+        <div class="modal-actions">
+          ${currentVal ? `<button class="btn btn-ghost" onclick="unmarkDone('${subjectId}','${courseId}',${off})">Marquer non fait</button>` : `<button class="btn btn-ghost" onclick="closeModal()">Annuler</button>`}
+          <button class="btn btn-primary" onclick="confirmDoneDate('${subjectId}','${courseId}',${off})">Valider</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('doneDateInput').focus();
+}
+
+function confirmDoneDate(subjectId, courseId, off){
+  const s = state.subjects.find(s=>s.id===subjectId);
+  const c = s.courses.find(c=>c.id===courseId);
+  const val = document.getElementById('doneDateInput').value;
+  if(!val) return;
+  if(!c.done) c.done = {};
+  c.done[off] = val;
+  closeModal();
+  render();
+}
+
+function unmarkDone(subjectId, courseId, off){
+  const s = state.subjects.find(s=>s.id===subjectId);
+  const c = s.courses.find(c=>c.id===courseId);
+  if(c.done) c.done[off] = false;
+  closeModal();
+  render();
+}
+
+function deleteSubject(id){
+  if(!confirm('Supprimer cette matière et tous ses cours ?')) return;
+  state.subjects = state.subjects.filter(s=>s.id!==id);
+  if(state.selectedId===id){
+    const fallback = state.subjects.find(s=>(s.annee||1)===state.selectedAnnee);
+    state.selectedId = fallback ? fallback.id : null;
+  }
+  render();
+}
+
+function deleteCourse(subjectId, courseId){
+  const s = state.subjects.find(s=>s.id===subjectId);
+  s.courses = s.courses.filter(c=>c.id!==courseId);
+  render();
+}
+
+/* ---------------- MODALS ---------------- */
+let modalAnnee = 1;
+let modalSemestre = 1;
+let modalColor = PALETTE_S1[0];
+
+function openSubjectModal(){
+  const root = document.getElementById('modalRoot');
+  modalAnnee = state.selectedAnnee || 1;
+  modalSemestre = 1;
+  modalColor = PALETTE_S1[Math.floor(Math.random()*PALETTE_S1.length)];
+  root.innerHTML = `
+    <div class="overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>Nouvelle matière</h3>
+        <div class="field">
+          <label>Nom de la matière</label>
+          <input type="text" id="subjectNameInput" placeholder="Ex : Histoire, SVT, Anglais..." autofocus>
+        </div>
+        <div class="field">
+          <label>Année</label>
+          <div class="semestre-toggle" id="anneeModalToggle">
+            <button type="button" class="${modalAnnee===1?'active':''}" data-annee="1" onclick="selectModalAnnee(1)">Master 1</button>
+            <button type="button" class="${modalAnnee===2?'active':''}" data-annee="2" onclick="selectModalAnnee(2)">Master 2</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Semestre</label>
+          <div class="semestre-toggle" id="semestreToggle">
+            <button type="button" class="active" data-sem="1" onclick="selectSemestre(1)">Semestre 1</button>
+            <button type="button" data-sem="2" onclick="selectSemestre(2)">Semestre 2</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Couleur</label>
+          <div class="swatches" id="colorSwatches"></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+          <button class="btn btn-primary" onclick="createSubject()">Créer</button>
+        </div>
+      </div>
+    </div>
+  `;
+  renderColorSwatches();
+  document.getElementById('subjectNameInput').focus();
+}
+
+function selectModalAnnee(annee){
+  modalAnnee = annee;
+  document.querySelectorAll('#anneeModalToggle button').forEach(b=>{
+    b.classList.toggle('active', Number(b.dataset.annee)===annee);
+  });
+}
+
+function renderColorSwatches(){
+  const palette = paletteFor(modalSemestre);
+  if(!palette.includes(modalColor)) modalColor = palette[0];
+  document.getElementById('colorSwatches').innerHTML = palette.map(p=>
+    `<div class="swatch ${p===modalColor?'selected':''}" style="background:var(--${p}-deep)" data-color="${p}" onclick="selectSwatch(this)"></div>`
+  ).join('');
+}
+
+function selectSemestre(sem){
+  modalSemestre = sem;
+  document.querySelectorAll('#semestreToggle button').forEach(b=>{
+    b.classList.toggle('active', Number(b.dataset.sem)===sem);
+  });
+  renderColorSwatches();
+}
+
+function selectSwatch(el){
+  modalColor = el.dataset.color;
+  document.querySelectorAll('#colorSwatches .swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function createSubject(){
+  const name = document.getElementById('subjectNameInput').value.trim();
+  if(!name) return;
+  const s = { id: uid(), name, color: modalColor, semestre: modalSemestre, annee: modalAnnee, courses: [] };
+  state.subjects.push(s);
+  state.selectedId = s.id;
+  state.selectedAnnee = modalAnnee;
+  closeModal();
+  render();
+}
+
+function openCourseModal(subjectId){
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>Nouveau cours</h3>
+        <div class="field">
+          <label>Nom du cours</label>
+          <input type="text" id="courseNameInput" placeholder="Ex : Chapitre 3 — la photosynthèse" autofocus>
+        </div>
+        <div class="field">
+          <label>Date du cours (jour J)</label>
+          <input type="date" id="courseDateInput" value="${isoToday()}">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+          <button class="btn btn-primary" onclick="createCourse('${subjectId}')">Ajouter</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('courseNameInput').focus();
+}
+
+function createCourse(subjectId){
+  const name = document.getElementById('courseNameInput').value.trim();
+  const date = document.getElementById('courseDateInput').value || isoToday();
+  if(!name) return;
+  const s = state.subjects.find(s=>s.id===subjectId);
+  s.courses.push({ id: uid(), name, date, done:{} });
+  closeModal();
+  render();
+}
+
+function closeModal(){
+  document.getElementById('modalRoot').innerHTML = '';
+}
+
+/* ---------------- EXPORT / IMPORT ---------------- */
+function exportData(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `revisions-${isoToday()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.subjects) throw new Error('format invalide');
+      state = data;
+      if(!state.selectedId && state.subjects.length) state.selectedId = state.subjects[0].id;
+      render();
+    }catch(err){
+      alert("Impossible de lire ce fichier : " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+render();
+refreshSyncStatusIdle();
+if(isSyncConfigured()){
+  syncPull(true);
+  setInterval(()=>{ syncPull(false); }, 20000);
+}
+</script>
+</body>
+</html>
